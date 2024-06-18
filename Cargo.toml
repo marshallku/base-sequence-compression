@@ -1,5 +1,5 @@
 [package]
-name = "base-sequence-compression"
+name = "base_sequence_compression"
 version = "0.1.0"
 authors = ["Marshall Ku <marshall@kakao.com>"]
 edition = "2021"
