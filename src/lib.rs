@@ -1,3 +1,8 @@
+pub const A_BITS: u8 = 0b00;
+pub const C_BITS: u8 = 0b01;
+pub const T_BITS: u8 = 0b10;
+pub const G_BITS: u8 = 0b11;
+
 pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     let mut compressed = Vec::new();
     let mut current_byte = 0u8;
@@ -5,10 +10,10 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
 
     for base in sequence.chars() {
         let bits = match base {
-            'A' => 0b00,
-            'C' => 0b01,
-            'T' => 0b10,
-            'G' => 0b11,
+            'A' => A_BITS,
+            'C' => C_BITS,
+            'T' => T_BITS,
+            'G' => G_BITS,
             _ => panic!("Invalid SEQUENCE!"),
         };
 
@@ -40,11 +45,11 @@ pub fn decompress_sequence(compressed: &[u8], length: usize) -> String {
 
         while bit_count >= 2 && sequence.len() < length {
             let base_bits = (bits >> (bit_count - 2)) & 0b11;
-            let base = match base_bits {
-                0b00 => 'A',
-                0b01 => 'C',
-                0b10 => 'T',
-                0b11 => 'G',
+            let base = match base_bits as u8 {
+                A_BITS => 'A',
+                C_BITS => 'C',
+                T_BITS => 'T',
+                G_BITS => 'G',
                 _ => panic!("Invalid bits!"),
             };
             sequence.push(base);
