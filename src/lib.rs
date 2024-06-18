@@ -8,6 +8,10 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     let mut current_byte = 0u8;
     let mut bit_count = 0;
 
+    // Prepend the length of the original DNA sequence as a 4-byte (u32) integer
+    let length: u32 = sequence.len() as u32;
+    compressed.extend_from_slice(&length.to_be_bytes());
+
     for base in sequence.chars() {
         let bits = match base {
             'A' => A_BITS,
@@ -34,12 +38,15 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     compressed
 }
 
-pub fn decompress_sequence(compressed: &[u8], length: usize) -> String {
+pub fn decompress_sequence(compressed: &[u8]) -> String {
+    // Extract the length of the original DNA sequence from the first 4 bytes
+    let length =
+        u32::from_be_bytes([compressed[0], compressed[1], compressed[2], compressed[3]]) as usize;
     let mut sequence = String::new();
     let mut bits = 0;
     let mut bit_count = 0;
 
-    for &byte in compressed {
+    for &byte in &compressed[4..] {
         bits = (bits << 8) | byte as usize;
         bit_count += 8;
 
@@ -68,7 +75,7 @@ mod tests {
     fn test_compress_decompress() {
         let dna_sequence = "ACGTACGTACGT";
         let compressed = compress_sequence(dna_sequence);
-        let decompressed = decompress_sequence(&compressed, dna_sequence.len());
+        let decompressed = decompress_sequence(&compressed);
 
         assert_eq!(dna_sequence, decompressed);
     }
