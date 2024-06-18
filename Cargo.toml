@@ -3,5 +3,8 @@ name = "base_sequence_compression"
 version = "0.1.0"
 authors = ["Marshall Ku <marshall@kakao.com>"]
 edition = "2021"
+description = "Library for compressing and decompressing DNA sequences"
+license = "MIT"
+repository = "https://github.com/marshallku/base-sequence-compression"
 
 [dependencies]
