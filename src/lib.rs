@@ -56,4 +56,22 @@ pub fn decompress_sequence(compressed: &[u8], length: usize) -> String {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_compress_decompress() {
+        let dna_sequence = "ACGTACGTACGT";
+        let compressed = compress_sequence(dna_sequence);
+        let decompressed = decompress_sequence(&compressed, dna_sequence.len());
+
+        assert_eq!(dna_sequence, decompressed);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_sequence() {
+        let dna_sequence = "ACXGT";
+        compress_sequence(dna_sequence);
+    }
+}
