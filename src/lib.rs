@@ -1,8 +1,30 @@
+/// The bit pattern for the base 'A' (00).
 pub const A_BITS: u8 = 0b00;
+/// The bit pattern for the base 'C' (01).
 pub const C_BITS: u8 = 0b01;
+/// The bit pattern for the base 'T' (10).
 pub const T_BITS: u8 = 0b10;
+/// The bit pattern for the base 'G' (11).
 pub const G_BITS: u8 = 0b11;
 
+/// Compresses a DNA sequence into a vector of bytes.
+///
+/// The DNA sequence is compressed by representing each base (A, C, T, G)
+/// with 2 bits. The compressed data starts with a 4-byte (u32) integer
+/// representing the length of the original sequence.
+///
+/// # Arguments
+///
+/// * `sequence` - A string slice that holds the DNA sequence.
+///
+/// # Returns
+///
+/// A vector of bytes containing the compressed DNA sequence.
+///
+/// # Panics
+///
+/// This function will panic if the sequence contains invalid characters
+/// other than 'A', 'C', 'T', or 'G'.
 pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     let mut compressed = Vec::new();
     let mut current_byte = 0u8;
@@ -38,6 +60,24 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     compressed
 }
 
+/// Decompresses a vector of bytes into a DNA sequence string.
+///
+/// The compressed data starts with a 4-byte (u32) integer representing
+/// the length of the original DNA sequence, followed by the compressed
+/// sequence data. Each base (A, C, T, G) is represented by 2 bits.
+///
+/// # Arguments
+///
+/// * `compressed` - A slice of bytes containing the compressed DNA sequence.
+///
+/// # Returns
+///
+/// A string containing the decompressed DNA sequence.
+///
+/// # Panics
+///
+/// This function will panic if the decompressed bits do not match the valid
+/// bit patterns for 'A', 'C', 'T', or 'G'.
 pub fn decompress_sequence(compressed: &[u8]) -> String {
     // Extract the length of the original DNA sequence from the first 4 bytes
     let length =
