@@ -1,6 +1,6 @@
 [package]
 name = "base_sequence_compression"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Marshall Ku <marshall@kakao.com>"]
 edition = "2021"
 description = "Library for compressing and decompressing DNA sequences"
