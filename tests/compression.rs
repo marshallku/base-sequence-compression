@@ -78,6 +78,15 @@ mod tests {
     }
 
     #[test]
+    fn test_lower_case() {
+        let dna_sequence = "acgt";
+        let compressed = compress_sequence(dna_sequence);
+        let decompressed = decompress_sequence(&compressed);
+
+        assert_eq!(dna_sequence.to_uppercase(), decompressed);
+    }
+
+    #[test]
     #[should_panic]
     fn test_invalid_sequence() {
         let dna_sequence = "ACXGT";

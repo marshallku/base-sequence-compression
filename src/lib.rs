@@ -40,6 +40,10 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
             'C' => C_BITS,
             'T' => T_BITS,
             'G' => G_BITS,
+            'a' => A_BITS,
+            'c' => C_BITS,
+            't' => T_BITS,
+            'g' => G_BITS,
             _ => panic!("Invalid SEQUENCE!"),
         };
 
