@@ -20,11 +20,6 @@ pub const G_BITS: u8 = 0b11;
 /// # Returns
 ///
 /// A vector of bytes containing the compressed DNA sequence.
-///
-/// # Panics
-///
-/// This function will panic if the sequence contains invalid characters
-/// other than 'A', 'C', 'T', or 'G'.
 pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     let mut compressed = Vec::new();
     let mut current_byte = 0u8;
@@ -44,7 +39,7 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
             'c' => C_BITS,
             't' => T_BITS,
             'g' => G_BITS,
-            _ => panic!("Invalid SEQUENCE!"),
+            _ => continue,
         };
 
         current_byte = (current_byte << 2) | bits;
@@ -77,11 +72,6 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
 /// # Returns
 ///
 /// A string containing the decompressed DNA sequence.
-///
-/// # Panics
-///
-/// This function will panic if the decompressed bits do not match the valid
-/// bit patterns for 'A', 'C', 'T', or 'G'.
 pub fn decompress_sequence(compressed: &[u8]) -> String {
     // Extract the length of the original DNA sequence from the first 4 bytes
     let length =
@@ -101,7 +91,7 @@ pub fn decompress_sequence(compressed: &[u8]) -> String {
                 C_BITS => 'C',
                 T_BITS => 'T',
                 G_BITS => 'G',
-                _ => panic!("Invalid bits!"),
+                _ => continue,
             };
             sequence.push(base);
             bit_count -= 2;

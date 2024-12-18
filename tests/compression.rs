@@ -87,9 +87,11 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn test_invalid_sequence() {
         let dna_sequence = "ACXGT";
-        compress_sequence(dna_sequence);
+        let compressed = compress_sequence(dna_sequence);
+        let decompressed = decompress_sequence(&compressed);
+
+        assert_eq!("ACGT", decompressed);
     }
 }
