@@ -21,13 +21,9 @@ pub const G_BITS: u8 = 0b11;
 ///
 /// A vector of bytes containing the compressed DNA sequence.
 pub fn compress_sequence(sequence: &str) -> Vec<u8> {
-    let mut compressed = Vec::new();
+    let mut compressed = Vec::with_capacity(sequence.len() / 4 + 1);
     let mut current_byte = 0u8;
     let mut bit_count = 0;
-
-    // Prepend the length of the original DNA sequence as a 4-byte (u32) integer
-    let length: u32 = sequence.len() as u32;
-    compressed.extend_from_slice(&length.to_be_bytes());
 
     for base in sequence.chars() {
         let bits = match base {
@@ -53,7 +49,8 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     }
 
     if bit_count > 0 {
-        compressed.push(current_byte << (8 - bit_count));
+        current_byte <<= 8 - bit_count;
+        compressed.push(current_byte);
     }
 
     compressed
@@ -72,29 +69,24 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
 /// # Returns
 ///
 /// A string containing the decompressed DNA sequence.
-pub fn decompress_sequence(compressed: &[u8]) -> String {
-    // Extract the length of the original DNA sequence from the first 4 bytes
-    let length =
-        u32::from_be_bytes([compressed[0], compressed[1], compressed[2], compressed[3]]) as usize;
+pub fn decompress_sequence(compressed: &[u8], sequence_length: usize) -> String {
     let mut sequence = String::new();
-    let mut bits = 0;
-    let mut bit_count = 0;
 
-    for &byte in &compressed[4..] {
-        bits = (bits << 8) | byte as usize;
-        bit_count += 8;
-
-        while bit_count >= 2 && sequence.len() < length {
-            let base_bits = (bits >> (bit_count - 2)) & 0b11;
-            let base = match base_bits as u8 {
+    for &byte in compressed {
+        let mut current_byte = byte;
+        for _ in 0..4 {
+            if sequence.len() >= sequence_length {
+                break;
+            }
+            let nucleotide = match (current_byte >> 6) & 0b11 {
                 A_BITS => 'A',
                 C_BITS => 'C',
                 T_BITS => 'T',
                 G_BITS => 'G',
-                _ => continue,
+                _ => unreachable!(),
             };
-            sequence.push(base);
-            bit_count -= 2;
+            sequence.push(nucleotide);
+            current_byte <<= 2;
         }
     }
 
