@@ -29,7 +29,8 @@ use base_sequence_compression::{compress_sequence, decompress_sequence};
 fn main() {
     let dna_sequence = "ACGTACGTACGT";
     let compressed = compress_sequence(dna_sequence);
-    let decompressed = decompress_sequence(&compressed);
+    let sequence_length = dna_sequence.len();
+    let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
 
     assert_eq!(dna_sequence, decompressed);
     println!("Compression successful!");
@@ -54,11 +55,12 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8>
 Decompresses binary data back into the original DNA sequence.
 
 ```rust
-pub fn decompress_sequence(compressed: &[u8]) -> String
+pub fn decompress_sequence(compressed: &[u8], sequence_length: usize) -> io::Result<String> {
 ```
 
 - **Input**: `&[u8]` - The compressed binary data.
-- **Output**: `String` - The decompressed DNA sequence.
+- **Input**: `usize` - The length of the original DNA sequence.
+- **Output**: `io::Result<String>` - The decompressed DNA sequence.
 
 ## Tests
 
@@ -83,7 +85,8 @@ Here's an example test that checks the compression and decompression of a DNA se
 fn test_compress_decompress() {
     let dna_sequence = "ACGTACGTACGT";
     let compressed = compress_sequence(dna_sequence);
-    let decompressed = decompress_sequence(&compressed);
+    let sequence_length = dna_sequence.len();
+    let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
 
     assert_eq!(dna_sequence, decompressed);
 }
