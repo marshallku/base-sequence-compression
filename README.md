@@ -7,6 +7,8 @@ Base Sequence Compression is a Rust library for compressing and decompressing DN
 - **Compression and Decompression**: Compress DNA sequences into a binary format and decompress them back to their original form.
 - **Error Handling**: Handles invalid DNA sequences by panicking, ensuring data integrity.
 - **Compression Rate Calculation**: Calculate the compression rate to evaluate the efficiency of the compression.
+- **FASTA File Compression**: Compress and decompress FASTA files containing multiple DNA sequences.
+- **WASM Support**: The library can be compiled to WebAssembly for use in web applications.
 
 ## Usage
 
@@ -16,7 +18,7 @@ Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-base_sequence_compression = "0.1.0"
+base_sequence_compression = "1.0.0"
 ```
 
 ### Example
@@ -55,12 +57,34 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8>
 Decompresses binary data back into the original DNA sequence.
 
 ```rust
-pub fn decompress_sequence(compressed: &[u8], sequence_length: usize) -> io::Result<String> {
+pub fn decompress_sequence(compressed: &[u8], sequence_length: usize) -> io::Result<String>
 ```
 
 - **Input**: `&[u8]` - The compressed binary data.
 - **Input**: `usize` - The length of the original DNA sequence.
 - **Output**: `io::Result<String>` - The decompressed DNA sequence.
+
+### `compress_fasta`
+
+Compresses a FASTA file containing DNA sequences.
+
+```rust
+pub fn compress_fasta(content: &str) -> Vec<u8>
+```
+
+- **Input**: `&str` - The content of the FASTA file.
+- **Output**: `Vec<u8>` - The compressed binary data.
+
+### `decompress_fasta`
+
+Decompresses binary data back into the original FASTA file content.
+
+```rust
+pub fn decompress_fasta(data: &[u8]) -> String
+```
+
+- **Input**: `&[u8]` - The compressed binary data.
+- **Output**: `String` - The decompressed FASTA file content.
 
 ## Tests
 
