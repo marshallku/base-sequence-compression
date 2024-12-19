@@ -116,7 +116,7 @@ mod tests {
 
         let content = std::fs::read_to_string(input_path).unwrap();
         let compressed = compress_fasta(&content);
-        let decompressed = decompress_fasta(&compressed).unwrap();
+        let decompressed = decompress_fasta(&compressed);
 
         assert_eq!(content, decompressed);
     }
@@ -127,7 +127,7 @@ mod tests {
 
         let content = std::fs::read_to_string(input_path).unwrap();
         let compressed = compress_fasta(&content);
-        let decompressed = decompress_fasta(&compressed).unwrap();
+        let decompressed = decompress_fasta(&compressed);
 
         assert_eq!(content, decompressed);
     }

@@ -3,6 +3,8 @@ use std::io::{self, Read, Write};
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 use flate2::Compression;
+#[allow(unused_imports)]
+use wasm_bindgen::prelude::wasm_bindgen;
 
 /// The bit pattern for the base 'A' (00).
 pub const A_BITS: u8 = 0b00;
@@ -26,6 +28,7 @@ pub const G_BITS: u8 = 0b11;
 /// # Returns
 ///
 /// A vector of bytes containing the compressed DNA sequence.
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     let mut compressed = Vec::with_capacity(sequence.len() / 4 + 1);
     let mut current_byte = 0u8;
@@ -166,18 +169,23 @@ pub fn compress_fasta(content: &str) -> Vec<u8> {
 /// # Errors
 ///
 /// Returns an error if the file is too short or if the file is missing
-pub fn decompress_fasta(data: &[u8]) -> Result<String, String> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn decompress_fasta(data: &[u8]) -> String {
     if data.len() < 12 {
-        return Err("File is too short".to_string());
+        return "".to_string();
     }
 
     let header_len = u32::from_le_bytes(data[0..4].try_into().unwrap()) as usize;
 
     if data.len() < 12 + header_len {
-        return Err("File is too short for header".to_string());
+        return "".to_string();
     }
 
-    let header = String::from_utf8(data[4..4 + header_len].to_vec()).map_err(|e| e.to_string())?;
+    let header =
+        match String::from_utf8(data[4..4 + header_len].to_vec()).map_err(|e| e.to_string()) {
+            Ok(header) => header,
+            Err(_) => return "".to_string(),
+        };
 
     let sequence_length =
         u32::from_le_bytes(data[4 + header_len..8 + header_len].try_into().unwrap()) as usize;
@@ -186,7 +194,7 @@ pub fn decompress_fasta(data: &[u8]) -> Result<String, String> {
         u32::from_le_bytes(data[8 + header_len..12 + header_len].try_into().unwrap()) as usize;
 
     if data.len() < 12 + header_len + compressed_len {
-        return Err("File is too short for compressed data".to_string());
+        return "".to_string();
     }
 
     let compressed_data = &data[12 + header_len..12 + header_len + compressed_len];
@@ -202,5 +210,5 @@ pub fn decompress_fasta(data: &[u8]) -> Result<String, String> {
         result.push('\n');
     }
 
-    Ok(result)
+    result
 }
