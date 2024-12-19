@@ -105,3 +105,102 @@ pub fn decompress_sequence(compressed: &[u8], sequence_length: usize) -> io::Res
 
     Ok(sequence)
 }
+
+/// Compresses a FASTA file content into a vector of bytes.
+///
+/// The FASTA file content is expected to have a header line followed by
+/// the DNA sequence. The DNA sequence is compressed by representing each
+/// base (A, C, T, G) with 2 bits. The compressed data starts with a 4-byte
+/// (u32) integer representing the length of the original sequence.
+///
+/// # Arguments
+///
+/// * `content` - A string slice that holds the FASTA file content.
+///
+/// # Returns
+///
+/// A vector of bytes containing the compressed FASTA file content.
+pub fn compress_fasta(content: &str) -> Vec<u8> {
+    let mut lines = content.lines();
+    let header = lines.next().unwrap_or("").to_string();
+    let sequence: String = lines.map(|line| line.trim()).collect();
+
+    let sequence_length = sequence.len() as u32;
+    let compressed_data = compress_sequence(&sequence);
+
+    let mut output = Vec::new();
+
+    // Write header length (4 bytes)
+    output.extend_from_slice(&(header.len() as u32).to_le_bytes());
+
+    // Write header
+    output.extend_from_slice(header.as_bytes());
+
+    // Write sequence length (4 bytes)
+    output.extend_from_slice(&sequence_length.to_le_bytes());
+
+    // Write compressed data length (4 bytes)
+    output.extend_from_slice(&(compressed_data.len() as u32).to_le_bytes());
+
+    // Write compressed data
+    output.extend_from_slice(&compressed_data);
+
+    output
+}
+
+/// Decompresses a vector of bytes into a FASTA file content.
+///
+/// The compressed data starts with a 4-byte (u32) integer representing
+/// the length of the header, followed by the header, the sequence length,
+/// and the compressed sequence data. Each base (A, C, T, G) is represented
+/// by 2 bits.
+///
+/// # Arguments
+///
+/// * `data` - A slice of bytes containing the compressed FASTA file content.
+///
+/// # Returns
+///
+/// A string containing the decompressed FASTA file content.
+///
+/// # Errors
+///
+/// Returns an error if the file is too short or if the file is missing
+pub fn decompress_fasta(data: &[u8]) -> Result<String, String> {
+    if data.len() < 12 {
+        return Err("File is too short".to_string());
+    }
+
+    let header_len = u32::from_le_bytes(data[0..4].try_into().unwrap()) as usize;
+
+    if data.len() < 12 + header_len {
+        return Err("File is too short for header".to_string());
+    }
+
+    let header = String::from_utf8(data[4..4 + header_len].to_vec()).map_err(|e| e.to_string())?;
+
+    let sequence_length =
+        u32::from_le_bytes(data[4 + header_len..8 + header_len].try_into().unwrap()) as usize;
+
+    let compressed_len =
+        u32::from_le_bytes(data[8 + header_len..12 + header_len].try_into().unwrap()) as usize;
+
+    if data.len() < 12 + header_len + compressed_len {
+        return Err("File is too short for compressed data".to_string());
+    }
+
+    let compressed_data = &data[12 + header_len..12 + header_len + compressed_len];
+    let decompressed = decompress_sequence(compressed_data, sequence_length).unwrap_or_default();
+
+    let mut result =
+        String::with_capacity(header.len() + decompressed.len() + (decompressed.len() / 60) * 2);
+    result.push_str(&header);
+    result.push('\n');
+
+    for chunk in decompressed.as_bytes().chunks(60) {
+        result.extend(chunk.iter().map(|&b| b as char));
+        result.push('\n');
+    }
+
+    Ok(result)
+}
