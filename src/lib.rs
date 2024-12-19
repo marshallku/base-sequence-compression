@@ -1,3 +1,9 @@
+use std::io::{self, Read, Write};
+
+use flate2::read::ZlibDecoder;
+use flate2::write::ZlibEncoder;
+use flate2::Compression;
+
 /// The bit pattern for the base 'A' (00).
 pub const A_BITS: u8 = 0b00;
 /// The bit pattern for the base 'C' (01).
@@ -28,12 +34,12 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
     for base in sequence.chars() {
         let bits = match base {
             'A' => A_BITS,
-            'C' => C_BITS,
-            'T' => T_BITS,
-            'G' => G_BITS,
             'a' => A_BITS,
+            'C' => C_BITS,
             'c' => C_BITS,
+            'T' => T_BITS,
             't' => T_BITS,
+            'G' => G_BITS,
             'g' => G_BITS,
             _ => continue,
         };
@@ -53,7 +59,10 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
         compressed.push(current_byte);
     }
 
-    compressed
+    // Apply ZLIB compression
+    let mut encoder = ZlibEncoder::new(Vec::new(), Compression::best());
+    encoder.write_all(&compressed).unwrap();
+    encoder.finish().unwrap()
 }
 
 /// Decompresses a vector of bytes into a DNA sequence string.
@@ -69,10 +78,14 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
 /// # Returns
 ///
 /// A string containing the decompressed DNA sequence.
-pub fn decompress_sequence(compressed: &[u8], sequence_length: usize) -> String {
+pub fn decompress_sequence(compressed: &[u8], sequence_length: usize) -> io::Result<String> {
+    let mut decoder = ZlibDecoder::new(compressed);
+    let mut decompressed_data = Vec::new();
+    decoder.read_to_end(&mut decompressed_data)?;
+
     let mut sequence = String::new();
 
-    for &byte in compressed {
+    for &byte in &decompressed_data {
         let mut current_byte = byte;
         for _ in 0..4 {
             if sequence.len() >= sequence_length {
@@ -90,5 +103,5 @@ pub fn decompress_sequence(compressed: &[u8], sequence_length: usize) -> String 
         }
     }
 
-    sequence
+    Ok(sequence)
 }

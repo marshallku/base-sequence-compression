@@ -9,7 +9,7 @@ mod tests {
         let dna_sequence = "ACGTACGTACGT";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
 
         assert_eq!(dna_sequence, decompressed);
     }
@@ -19,7 +19,7 @@ mod tests {
         let dna_sequence = "";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
         assert_eq!(dna_sequence, decompressed);
     }
 
@@ -28,7 +28,7 @@ mod tests {
         let dna_sequence = "A";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
         assert_eq!(dna_sequence, decompressed);
     }
 
@@ -37,7 +37,7 @@ mod tests {
         let dna_sequence = "C";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
         assert_eq!(dna_sequence, decompressed);
     }
 
@@ -46,7 +46,7 @@ mod tests {
         let dna_sequence = "T";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
         assert_eq!(dna_sequence, decompressed);
     }
 
@@ -55,7 +55,7 @@ mod tests {
         let dna_sequence = "G";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
         assert_eq!(dna_sequence, decompressed);
     }
 
@@ -64,7 +64,7 @@ mod tests {
         let dna_sequence = "ACGTACGTA";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
         assert_eq!(dna_sequence, decompressed);
     }
 
@@ -73,7 +73,7 @@ mod tests {
         let dna_sequence = "ACGTACGTAC";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
         assert_eq!(dna_sequence, decompressed);
     }
 
@@ -82,7 +82,7 @@ mod tests {
         let dna_sequence = "ACGTACGTACG";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
         assert_eq!(dna_sequence, decompressed);
     }
 
@@ -91,7 +91,7 @@ mod tests {
         let dna_sequence = "acgt";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
 
         assert_eq!(dna_sequence.to_uppercase(), decompressed);
     }
@@ -101,7 +101,7 @@ mod tests {
         let dna_sequence = "ACXGT";
         let compressed = compress_sequence(dna_sequence);
         let sequence_length = dna_sequence.len();
-        let decompressed = decompress_sequence(&compressed, sequence_length);
+        let decompressed = decompress_sequence(&compressed, sequence_length).unwrap();
 
         assert_eq!("ACGT", decompressed);
     }

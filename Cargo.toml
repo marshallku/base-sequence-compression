@@ -8,3 +8,4 @@ license = "MIT"
 repository = "https://github.com/marshallku/base-sequence-compression"
 
 [dependencies]
+flate2 = "1.0.35"
