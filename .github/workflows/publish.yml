@@ -1,0 +1,114 @@
+name: Publish
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    check-version:
+        name: Check version
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.check-version.outputs.version }}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: marshallku/actions/version/check-cargo@master
+              id: check-version
+            - if: ${{ steps.check-version.outputs.version == '' }}
+              run: echo "Version does not changed, skipping publish"
+            - if: ${{ steps.check-version.outputs.version != '' }}
+              run: echo "Version changed to ${{ steps.check-version.outputs.version }}, publishing"
+    test:
+        name: Test project
+        needs: check-version
+        if: ${{ needs.check-version.outputs.version != '' }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+            - run: cargo test
+    build-wasm:
+        name: Build WASM
+        needs: check-version
+        if: ${{ needs.check-version.outputs.version != '' }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+            - run: cargo install wasm-pack
+            - run: wasm-pack build --target web
+    build:
+        name: Build project
+        needs: check-version
+        if: ${{ needs.check-version.outputs.version != '' }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+            - run: cargo build --release
+    create-tag-release:
+        runs-on: ubuntu-latest
+        needs: [check-version, test, build-wasm, build]
+        if: ${{ needs.check-version.outputs.version != '' }}
+        outputs:
+            tag-exists: ${{ steps.create-tag.outputs.tag_exists }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - name: Generate body
+              id: generate-body
+              run: |
+                  EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+                  git_logs=$(git log "$(git describe --tags --abbrev=0)"..HEAD --oneline)
+                  git_logs="${git_logs//$'\n'/$'\n'- }"
+                  {
+                      echo "body<<$EOF"
+                      echo "- $git_logs"
+                      echo "$EOF"
+                  } >>"$GITHUB_OUTPUT"
+              shell: bash
+            - uses: rickstaa/action-create-tag@v1
+              id: create-tag
+              with:
+                  tag: ${{ needs.check-version.outputs.version }}
+                  tag_exists_error: true
+                  message: ${{ needs.check-version.outputs.version }}
+            - name: Create a GitHub release
+              if: ${{ steps.create-tag.outputs.tag_exists == 'false' }}
+              uses: ncipollo/release-action@v1
+              with:
+                  tag: ${{ needs.check-version.outputs.version }}
+                  name: ${{ needs.check-version.outputs.version }}
+                  body: ${{ steps.generate-body.outputs.body }}
+    publish:
+        name: Publish project
+        needs: [check-version, create-tag-release]
+        if: ${{ needs.check-version.outputs.version != '' && needs.create-tag-release.outputs.tag-exists == 'false' }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+            - name: Login to crates.io
+              run: cargo login ${{ secrets.CRATES_TOKEN }}
+            - name: Publish to crates.io
+              run: cargo publish
+            - name: Install wasm-pack
+              run: cargo install wasm-pack
+            - name: Build WASM
+              run: wasm-pack build --target web
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  check-latest: true
+                  registry-url: https://registry.npmjs.org/
+            - name: Publish to NPM (dry-run)
+              run: npm publish ./pkg --dry-run --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: Publish to NPM
+              run: npm publish ./pkg --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
