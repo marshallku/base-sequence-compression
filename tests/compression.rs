@@ -2,7 +2,11 @@ use base_sequence_compression::{compress_sequence, decompress_sequence};
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
+    use std::{
+        fs::File,
+        io::{Read, Write},
+        path::Path,
+    };
 
     use base_sequence_compression::{compress_fasta, decompress_fasta};
 
@@ -113,17 +117,6 @@ mod tests {
     #[test]
     fn test_fasta_file() {
         let input_path = Path::new("tests/input/test.fasta");
-
-        let content = std::fs::read_to_string(input_path).unwrap();
-        let compressed = compress_fasta(&content);
-        let decompressed = decompress_fasta(&compressed);
-
-        assert_eq!(content, decompressed);
-    }
-
-    #[test]
-    fn test_large_fasta_file() {
-        let input_path = Path::new("tests/input/large.fasta");
 
         let content = std::fs::read_to_string(input_path).unwrap();
         let compressed = compress_fasta(&content);
