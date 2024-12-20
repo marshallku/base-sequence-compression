@@ -2,11 +2,7 @@ use base_sequence_compression::{compress_sequence, decompress_sequence};
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        fs::File,
-        io::{Read, Write},
-        path::Path,
-    };
+    use std::{fs::File, io::Read, path::Path};
 
     use base_sequence_compression::{compress_fasta, decompress_fasta};
 
