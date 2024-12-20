@@ -124,4 +124,21 @@ mod tests {
 
         assert_eq!(content, decompressed);
     }
+
+    #[test]
+    fn test_fasta_file_decompress() {
+        let input_path = Path::new("tests/input/test.fasta");
+        let output_path = Path::new("tests/output/test.bin");
+
+        let input_content = std::fs::read_to_string(input_path).unwrap();
+        let mut output_file = File::open(output_path).ok().unwrap();
+        let mut output_content = Vec::new();
+        output_file.read_to_end(&mut output_content).ok();
+
+        let compressed = compress_fasta(&input_content);
+        let decompressed = decompress_fasta(&output_content);
+
+        assert_eq!(compressed, output_content);
+        assert_eq!(input_content, decompressed);
+    }
 }
