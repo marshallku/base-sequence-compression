@@ -161,6 +161,7 @@ pub fn compress_fasta(content: &str) -> Vec<u8> {
 /// # Arguments
 ///
 /// * `data` - A slice of bytes containing the compressed FASTA file content.
+/// * `length` - Length of the original sequence.
 ///
 /// # Returns
 ///
