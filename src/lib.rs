@@ -36,14 +36,10 @@ pub fn compress_sequence(sequence: &str) -> Vec<u8> {
 
     for base in sequence.chars() {
         let bits = match base {
-            'A' => A_BITS,
-            'a' => A_BITS,
-            'C' => C_BITS,
-            'c' => C_BITS,
-            'T' => T_BITS,
-            't' => T_BITS,
-            'G' => G_BITS,
-            'g' => G_BITS,
+            'A' | 'a' => A_BITS,
+            'C' | 'c' => C_BITS,
+            'T' | 't' => T_BITS,
+            'G' | 'g' => G_BITS,
             _ => continue,
         };
 
